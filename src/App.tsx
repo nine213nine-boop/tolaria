@@ -5,25 +5,12 @@ import { NoteList } from './components/NoteList'
 import { Editor } from './components/Editor'
 import { Inspector } from './components/Inspector'
 import { ResizeHandle } from './components/ResizeHandle'
+import { isTauri, mockInvoke } from './mock-tauri'
+import type { VaultEntry } from './types'
 import './App.css'
 
-interface VaultEntry {
-  path: string
-  filename: string
-  title: string
-  isA: string | null
-  aliases: string[]
-  belongsTo: string[]
-  relatedTo: string[]
-  status: string | null
-  owner: string | null
-  cadence: string | null
-  modifiedAt: number | null
-  fileSize: number
-}
-
 // TODO: Make vault path configurable via settings
-const TEST_VAULT_PATH = '~/vault'
+const TEST_VAULT_PATH = '~/Laputa'
 
 function App() {
   const [entries, setEntries] = useState<VaultEntry[]>([])
@@ -33,17 +20,24 @@ function App() {
   const [inspectorCollapsed, setInspectorCollapsed] = useState(false)
 
   useEffect(() => {
-    // Expand ~ to home directory for the test path
-    const path = TEST_VAULT_PATH.replace('~', '/Users/' + (import.meta.env.VITE_USER || 'user'))
-
-    invoke<VaultEntry[]>('list_vault', { path })
-      .then((result) => {
-        console.log(`Vault scan complete: ${result.length} entries found`, result)
+    const loadVault = async () => {
+      try {
+        let result: VaultEntry[]
+        if (isTauri()) {
+          const path = TEST_VAULT_PATH.replace('~', '/Users/luca')
+          result = await invoke<VaultEntry[]>('list_vault', { path })
+        } else {
+          // Running in browser (not Tauri) — use mock data for visual testing
+          console.info('[mock] Using mock Tauri data for browser testing')
+          result = await mockInvoke<VaultEntry[]>('list_vault', {})
+        }
+        console.log(`Vault scan complete: ${result.length} entries found`)
         setEntries(result)
-      })
-      .catch((err) => {
-        console.warn('Vault scan failed (expected if no vault at path):', err)
-      })
+      } catch (err) {
+        console.warn('Vault scan failed:', err)
+      }
+    }
+    loadVault()
   }, [])
 
   const handleSidebarResize = useCallback((delta: number) => {

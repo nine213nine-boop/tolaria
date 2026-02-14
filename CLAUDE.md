@@ -46,6 +46,25 @@ Laputa App is a personal knowledge and life management desktop app, built with T
 - If something is hacky or temporary, leave a `// TODO:` comment explaining why and what the real solution would be
 - Error handling: don't silently swallow errors. Log them, surface them, or return Result types (Rust)
 
+### Visual Verification (MANDATORY)
+Before declaring any milestone or feature complete, you MUST visually verify it works:
+
+1. **Start the dev server**: `pnpm dev` (Vite only, no Tauri needed)
+2. **Run Playwright screenshot**: `npx playwright test e2e/screenshot.spec.ts`
+3. **Check the screenshot** at `test-results/app-screenshot.png` — does it look right? Are notes showing? Is the layout correct?
+4. **Interact and verify**: Write a Playwright test that clicks, navigates, and screenshots the result
+
+The app has a **Tauri mock layer** (`src/mock-tauri.ts`): when running in a browser (not Tauri), it returns realistic test data. This means Playwright and Chrome can test the full UI without the Rust backend.
+
+**Key rule**: passing unit tests ≠ working app. If you can't see it working in a screenshot, it's not done.
+
+### Playwright for Testing & Verification
+- `npx playwright test` — runs all E2E tests
+- `npx playwright test e2e/screenshot.spec.ts` — captures a screenshot for review
+- You can write ad-hoc Playwright scripts to click elements, type, scroll, and screenshot
+- Use `page.screenshot({ path: 'test-results/something.png' })` to capture state
+- Always screenshot before AND after interactions to verify changes
+
 ### When Stuck
 - Use Context7 MCP to look up current API docs (Tauri v2, CodeMirror 6, etc.)
 - If a dependency doesn't work as expected, check its version and docs before trying workarounds

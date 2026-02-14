@@ -1,0 +1,196 @@
+/**
+ * Mock Tauri invoke for browser testing.
+ * When running outside Tauri (e.g. in Chrome via localhost:5173),
+ * this provides realistic test data so the UI can be verified visually.
+ */
+
+import type { VaultEntry } from './types'
+
+const MOCK_ENTRIES: VaultEntry[] = [
+  {
+    path: '/Users/luca/Laputa/project/26q1-laputa-app.md',
+    filename: '26q1-laputa-app.md',
+    title: 'Build Laputa App',
+    isA: 'Project',
+    aliases: ['Laputa App'],
+    belongsTo: ['[[quarter/q1-2026]]'],
+    relatedTo: ['[[topic/software-development]]'],
+    status: 'Active',
+    owner: 'Luca Rossi',
+    cadence: null,
+    modifiedAt: Date.now() / 1000,
+    fileSize: 2048,
+  },
+  {
+    path: '/Users/luca/Laputa/responsibility/grow-newsletter.md',
+    filename: 'grow-newsletter.md',
+    title: 'Grow Newsletter',
+    isA: 'Responsibility',
+    aliases: [],
+    belongsTo: [],
+    relatedTo: ['[[topic/growth]]'],
+    status: 'Active',
+    owner: 'Luca Rossi',
+    cadence: null,
+    modifiedAt: Date.now() / 1000 - 3600,
+    fileSize: 1024,
+  },
+  {
+    path: '/Users/luca/Laputa/responsibility/manage-sponsorships.md',
+    filename: 'manage-sponsorships.md',
+    title: 'Manage Sponsorships',
+    isA: 'Responsibility',
+    aliases: [],
+    belongsTo: [],
+    relatedTo: [],
+    status: 'Active',
+    owner: 'Matteo Cellini',
+    cadence: null,
+    modifiedAt: Date.now() / 1000 - 7200,
+    fileSize: 890,
+  },
+  {
+    path: '/Users/luca/Laputa/procedure/write-weekly-essays.md',
+    filename: 'write-weekly-essays.md',
+    title: 'Write Weekly Essays',
+    isA: 'Procedure',
+    aliases: [],
+    belongsTo: ['[[responsibility/grow-newsletter]]'],
+    relatedTo: [],
+    status: 'Active',
+    owner: 'Luca Rossi',
+    cadence: 'Weekly',
+    modifiedAt: Date.now() / 1000 - 86400,
+    fileSize: 512,
+  },
+  {
+    path: '/Users/luca/Laputa/procedure/run-sponsorships.md',
+    filename: 'run-sponsorships.md',
+    title: 'Run Sponsorships',
+    isA: 'Procedure',
+    aliases: [],
+    belongsTo: ['[[responsibility/manage-sponsorships]]'],
+    relatedTo: [],
+    status: 'Active',
+    owner: 'Matteo Cellini',
+    cadence: 'Weekly',
+    modifiedAt: Date.now() / 1000 - 86400 * 2,
+    fileSize: 640,
+  },
+  {
+    path: '/Users/luca/Laputa/experiment/stock-screener.md',
+    filename: 'stock-screener.md',
+    title: 'Stock Screener — EMA200 Wick Bounce',
+    isA: 'Experiment',
+    aliases: ['Trading Screener'],
+    belongsTo: [],
+    relatedTo: ['[[topic/trading]]', '[[topic/algorithmic-trading]]'],
+    status: 'Active',
+    owner: 'Luca Rossi',
+    cadence: null,
+    modifiedAt: Date.now() / 1000 - 86400,
+    fileSize: 3200,
+  },
+  {
+    path: '/Users/luca/Laputa/note/facebook-ads-strategy.md',
+    filename: 'facebook-ads-strategy.md',
+    title: 'Facebook Ads Strategy',
+    isA: 'Note',
+    aliases: [],
+    belongsTo: ['[[project/26q1-laputa-app]]'],
+    relatedTo: ['[[topic/growth]]', '[[topic/ads]]'],
+    status: null,
+    owner: null,
+    cadence: null,
+    modifiedAt: Date.now() / 1000 - 3600 * 5,
+    fileSize: 847,
+  },
+  {
+    path: '/Users/luca/Laputa/note/budget-allocation.md',
+    filename: 'budget-allocation.md',
+    title: 'Budget Allocation',
+    isA: 'Note',
+    aliases: [],
+    belongsTo: ['[[project/26q1-laputa-app]]'],
+    relatedTo: [],
+    status: null,
+    owner: null,
+    cadence: null,
+    modifiedAt: Date.now() / 1000 - 86400,
+    fileSize: 560,
+  },
+  {
+    path: '/Users/luca/Laputa/person/matteo-cellini.md',
+    filename: 'matteo-cellini.md',
+    title: 'Matteo Cellini',
+    isA: 'Person',
+    aliases: ['Matteo'],
+    belongsTo: [],
+    relatedTo: [],
+    status: null,
+    owner: null,
+    cadence: null,
+    modifiedAt: Date.now() / 1000 - 86400 * 7,
+    fileSize: 320,
+  },
+  {
+    path: '/Users/luca/Laputa/event/2026-02-14-laputa-app-kickoff.md',
+    filename: '2026-02-14-laputa-app-kickoff.md',
+    title: 'Laputa App Design Session',
+    isA: 'Event',
+    aliases: [],
+    belongsTo: [],
+    relatedTo: ['[[project/26q1-laputa-app]]', '[[person/matteo-cellini]]'],
+    status: null,
+    owner: null,
+    cadence: null,
+    modifiedAt: Date.now() / 1000 - 3600 * 2,
+    fileSize: 1200,
+  },
+  {
+    path: '/Users/luca/Laputa/topic/software-development.md',
+    filename: 'software-development.md',
+    title: 'Software Development',
+    isA: 'Topic',
+    aliases: ['Dev', 'Coding'],
+    belongsTo: [],
+    relatedTo: [],
+    status: null,
+    owner: null,
+    cadence: null,
+    modifiedAt: Date.now() / 1000 - 86400 * 30,
+    fileSize: 256,
+  },
+  {
+    path: '/Users/luca/Laputa/topic/trading.md',
+    filename: 'trading.md',
+    title: 'Trading',
+    isA: 'Topic',
+    aliases: ['Algorithmic Trading'],
+    belongsTo: [],
+    relatedTo: [],
+    status: null,
+    owner: null,
+    cadence: null,
+    modifiedAt: Date.now() / 1000 - 86400 * 14,
+    fileSize: 180,
+  },
+]
+
+const mockHandlers: Record<string, (args: any) => any> = {
+  list_vault: () => MOCK_ENTRIES,
+}
+
+export function isTauri(): boolean {
+  return typeof window !== 'undefined' && '__TAURI__' in window
+}
+
+export async function mockInvoke<T>(cmd: string, args?: any): Promise<T> {
+  const handler = mockHandlers[cmd]
+  if (handler) {
+    // Simulate async delay
+    await new Promise((r) => setTimeout(r, 100))
+    return handler(args) as T
+  }
+  throw new Error(`No mock handler for command: ${cmd}`)
+}
