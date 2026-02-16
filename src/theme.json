@@ -48,7 +48,7 @@
   },
   "lists": {
     "bulletSymbol": "•",
-    "bulletSize": 30,
+    "bulletSize": 20,
     "bulletColor": "var(--text-tertiary)",
     "indentSize": 24,
     "itemSpacing": 4,
