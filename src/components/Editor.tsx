@@ -85,24 +85,11 @@ const schema = BlockNoteSchema.create({
   },
 })
 
-/** Inner component that creates/manages BlockNote for a single tab */
-function BlockNoteTab({ content, entries, onNavigateWikilink }: { content: string; entries: VaultEntry[]; onNavigateWikilink: (target: string) => void }) {
-  const [, body] = useMemo(() => splitFrontmatter(content), [content])
+/** Single BlockNote editor view — content is swapped via replaceBlocks */
+function SingleEditorView({ editor, entries, onNavigateWikilink }: { editor: ReturnType<typeof useCreateBlockNote>; entries: VaultEntry[]; onNavigateWikilink: (target: string) => void }) {
   const navigateRef = useRef(onNavigateWikilink)
   navigateRef.current = onNavigateWikilink
   const { cssVars } = useEditorTheme()
-
-  const editor = useCreateBlockNote({ schema })
-
-  useEffect(() => {
-    async function load() {
-      const preprocessed = preProcessWikilinks(body)
-      const blocks = await editor.tryParseMarkdownToBlocks(preprocessed)
-      const withWikilinks = injectWikilinks(blocks)
-      editor.replaceBlocks(editor.document, withWikilinks)
-    }
-    load()
-  }, [body, editor])
 
   useEffect(() => {
     const container = document.querySelector('.editor__blocknote-container')
@@ -170,6 +157,55 @@ export const Editor = memo(function Editor({
   const [diffMode, setDiffMode] = useState(false)
   const [diffContent, setDiffContent] = useState<string | null>(null)
   const [diffLoading, setDiffLoading] = useState(false)
+
+  // Single editor instance — reused across all tabs
+  const editor = useCreateBlockNote({ schema })
+  // Cache parsed blocks per tab path for instant switching
+  const tabCacheRef = useRef<Map<string, any[]>>(new Map())
+  const prevActivePathRef = useRef<string | null>(null)
+
+  // Swap document content when active tab changes
+  useEffect(() => {
+    const cache = tabCacheRef.current
+    const prevPath = prevActivePathRef.current
+
+    // Save current editor state for the tab we're leaving
+    if (prevPath && prevPath !== activeTabPath) {
+      cache.set(prevPath, editor.document)
+    }
+    prevActivePathRef.current = activeTabPath
+
+    if (!activeTabPath) return
+
+    const tab = tabs.find(t => t.entry.path === activeTabPath)
+    if (!tab) return
+
+    if (cache.has(activeTabPath)) {
+      // Instant switch — use cached blocks
+      editor.replaceBlocks(editor.document, cache.get(activeTabPath)!)
+    } else {
+      // First open — parse markdown
+      const [, body] = splitFrontmatter(tab.content)
+      const preprocessed = preProcessWikilinks(body)
+      editor.tryParseMarkdownToBlocks(preprocessed).then(blocks => {
+        const withWikilinks = injectWikilinks(blocks)
+        editor.replaceBlocks(editor.document, withWikilinks)
+        cache.set(activeTabPath, withWikilinks)
+      })
+    }
+  }, [activeTabPath, tabs, editor])
+
+  // Clean up cache entries when tabs are closed
+  const tabPathsRef = useRef<Set<string>>(new Set())
+  useEffect(() => {
+    const currentPaths = new Set(tabs.map(t => t.entry.path))
+    for (const path of tabPathsRef.current) {
+      if (!currentPaths.has(path)) {
+        tabCacheRef.current.delete(path)
+      }
+    }
+    tabPathsRef.current = currentPaths
+  }, [tabs])
 
   const activeTab = tabs.find((t) => t.entry.path === activeTabPath) ?? null
   const isLoadingNewTab = activeTabPath !== null && !activeTab
@@ -424,23 +460,22 @@ export const Editor = memo(function Editor({
               <DiffView diff={diffContent ?? ''} />
             </div>
           )}
-          {tabs.map((tab) => (
+          {!diffMode && activeTab && (
             <div
-              key={tab.entry.path}
               style={{
-                display: !diffMode && tab.entry.path === activeTabPath ? 'flex' : 'none',
+                display: 'flex',
                 flex: 1,
                 flexDirection: 'column',
                 minHeight: 0,
               }}
             >
-              <BlockNoteTab
-                content={tab.content}
+              <SingleEditorView
+                editor={editor}
                 entries={entries}
                 onNavigateWikilink={onNavigateWikilink}
               />
             </div>
-          ))}
+          )}
           {isLoadingNewTab && !diffMode && (
             <div className="flex flex-1 flex-col gap-3 p-8 animate-pulse" style={{ minHeight: 0 }}>
               <div className="h-6 w-2/5 rounded bg-muted" />
