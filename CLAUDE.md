@@ -50,6 +50,7 @@ Laputa App is a personal knowledge and life management desktop app, built with T
 - `pnpm test:e2e` runs Playwright (E2E)
 - Every new module should have tests
 - Test with realistic data — use real markdown files with YAML frontmatter, not toy examples
+- **Bug → Test rule**: Every bug found manually that tests didn't catch MUST result in a new test (unit or E2E) so it never regresses. Ask yourself: "Why didn't tests catch this?" and close the gap.
 - Edge cases matter: empty frontmatter, missing fields, malformed YAML, files with no H1 title
 
 ### Code Quality
