@@ -198,7 +198,7 @@ export function DynamicPropertiesPanel({
   }
 
   return (
-    <div className="mb-4">
+    <div>
       <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Properties</h4>
       <div className="flex flex-col gap-2">
         {entry.isA && (

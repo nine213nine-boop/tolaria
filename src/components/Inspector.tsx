@@ -77,7 +77,7 @@ function DynamicRelationshipsPanel({ frontmatter, onNavigate }: { frontmatter: P
   }, [frontmatter])
 
   return (
-    <div className="mb-4">
+    <div>
       <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Relationships</h4>
       {relationshipEntries.length === 0 ? (
         <p className="m-0 text-[13px] text-muted-foreground">No relationships</p>
@@ -122,7 +122,7 @@ function useBacklinks(entry: VaultEntry | null, entries: VaultEntry[], allConten
 
 function BacklinksPanel({ backlinks, onNavigate }: { backlinks: VaultEntry[]; onNavigate: (target: string) => void }) {
   return (
-    <div className="mb-4">
+    <div>
       <h4 className="mb-2 font-semibold text-foreground" style={{ fontSize: 12 }}>
         Backlinks {backlinks.length > 0 && <span className="ml-1 text-muted-foreground" style={{ fontSize: 11, fontWeight: 500 }}>{backlinks.length}</span>}
       </h4>
@@ -160,7 +160,7 @@ function formatRelativeDate(timestamp: number): string {
 
 function GitHistoryPanel({ commits }: { commits: GitCommit[] }) {
   return (
-    <div className="mb-4">
+    <div>
       <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">History</h4>
       {commits.length === 0 ? (
         <p className="m-0 text-[13px] text-muted-foreground">No revision history</p>
@@ -189,19 +189,19 @@ function GitHistoryPanel({ commits }: { commits: GitCommit[] }) {
 function EmptyInspector() {
   return (
     <>
-      <div className="mb-4">
+      <div>
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Properties</h4>
         <p className="m-0 text-[13px] text-muted-foreground">No note selected</p>
       </div>
-      <div className="mb-4">
+      <div>
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Relationships</h4>
         <p className="m-0 text-[13px] text-muted-foreground">No relationships</p>
       </div>
-      <div className="mb-4">
+      <div>
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Backlinks</h4>
         <p className="m-0 text-[13px] text-muted-foreground">No backlinks</p>
       </div>
-      <div className="mb-4">
+      <div>
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">History</h4>
         <p className="m-0 text-[13px] text-muted-foreground">No revision history</p>
       </div>
@@ -249,7 +249,7 @@ export function Inspector({
         )}
       </div>
       {!collapsed && (
-        <div className="p-3">
+        <div className="flex flex-col gap-4 p-3">
           {entry ? (
             <>
               <DynamicPropertiesPanel
