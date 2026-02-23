@@ -290,7 +290,7 @@ export const Editor = memo(function Editor({
     // Convert blocks → markdown, restoring wikilinks first
     const blocks = editor.document
     const restored = restoreWikilinksInBlocks(blocks)
-    const bodyMarkdown = editor.blocksToMarkdownLossy(restored)
+    const bodyMarkdown = editor.blocksToMarkdownLossy(restored as typeof blocks)
 
     // Reconstruct the full file: preserve original frontmatter + title heading
     const [frontmatter] = splitFrontmatter(tab.content)

@@ -83,7 +83,7 @@ function App() {
 
   const updateTabAndContent = useCallback((path: string, content: string) => {
     vault.updateContent(path, content)
-    notes.setTabs((prev: { entry: { path: string }; content: string }[]) =>
+    notes.setTabs((prev) =>
       prev.map((t) => t.entry.path === path ? { ...t, content } : t)
     )
   }, [vault, notes])

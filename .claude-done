@@ -1,56 +1,36 @@
-# Vault from GitHub — Implementation Summary
+# Bug Fix: Editor Auto-Save
 
-## What was built
+## What was fixed
+The editor was not saving changes to disk. Editing a note and switching tabs or closing the app would lose all changes.
 
-A "Vault from GitHub" feature that lets users create or clone a vault from a GitHub repository, directly from within the Laputa app.
+## Root cause
+No `save_note_content` Tauri command existed, no `onChange` handler on the BlockNote editor, and no save mechanism of any kind for body content (only frontmatter updates were saved).
 
-## Architecture
+## Implementation
 
-### Rust Backend (`src-tauri/src/github.rs`)
-- `github_list_repos` — Paginated GitHub API call to list authenticated user's repos (up to 1000)
-- `github_create_repo` — Creates a new GitHub repo via API with auto_init
-- `clone_repo` — Clones a repo locally using HTTPS + OAuth token injection, configures remote auth
-- Helper functions: `inject_token_into_url`, `configure_remote_auth`
-- All three exposed as Tauri commands in `lib.rs`
+### Backend (Rust)
+- Added `save_note_content()` in `vault.rs` with path validation (parent dir existence, read-only check)
+- Registered the Tauri command in `lib.rs`
+- 5 new Rust tests for save functionality
 
-### Frontend (`src/components/GitHubVaultModal.tsx`)
-- Two-tab modal: "Clone Existing" and "Create New"
-- Clone tab: searchable repo list with Private/Public badges, auto-fill clone path
-- Create tab: repo name, Private/Public toggle, auto-fill clone path
-- Loading and cloning progress states
-- No-token state redirects to Settings
-- Integrated into `App.tsx` via StatusBar vault menu
+### Frontend
+- **`useAutoSave` hook** — 500ms debounced save via Tauri command, with `flush()` for immediate save on tab switch
+- **`Editor.tsx` onChange** — Serializes BlockNote blocks back to markdown, restores wikilinks, reconstructs full file (frontmatter + title + body), passes to auto-save
+- **`suppressChangeRef`** — Prevents false saves during programmatic content swaps (tab switching)
+- **`restoreWikilinksInBlocks()`** — Reverse of `injectWikilinks`, collapses wikilink inline nodes back to `[[target]]` syntax
+- **Shared `walkBlocks()` helper** — Extracted to eliminate code duplication between inject/restore
 
-### Settings Extension
-- Added `github_token` field to Settings (Rust + TypeScript)
-- GitHub Token input field in SettingsPanel
-- Refactored `settings.rs` to use testable internal functions (`get_settings_at`, `save_settings_at`)
+### Mock layer
+- Added `save_note_content` handler in `mock-tauri.ts` for browser testing
 
-### Mock Data (`src/mock-tauri.ts`)
-- 5 realistic mock repos for browser-mode testing
-- Mock handlers for all 3 GitHub commands
+### Tests
+- 12 new frontend tests (6 for useAutoSave, 6 for wikilink restoration)
+- 5 new Rust tests for save_note_content
+- E2E test verifying editor loads and renders correctly
+- All 469 frontend + 174 Rust tests passing
+- Coverage thresholds maintained
 
-## Design Decisions
-
-1. **HTTPS+token auth over SSH**: Simpler for users (no SSH key setup), token injected into remote URL
-2. **Auto-fill clone path**: `~/Vaults/<repo-name>` — sensible default, editable
-3. **Private by default** for new repos — safer default for personal vaults
-4. **No OAuth flow**: GitHub token entered manually in Settings — ships faster, no server dependency
-5. **Extra vaults tracked in state**: Cloned vaults added to vault switcher dynamically (not persisted across sessions yet)
-
-## Test Coverage
-
-- **Frontend**: 80.79% statements, 83.34% lines (threshold: 70%)
-- **Rust**: 86.20% lines (threshold: 85%)
-- 12 GitHubVaultModal component tests
-- 12 Rust github.rs unit tests
-- 9 Rust settings.rs unit tests (refactored for coverage)
-- E2E Playwright verification: vault menu, modal tabs, repo list, search filter, repo selection
-
-## Commits (6 total)
-1. `design: vault-from-github wireframes`
-2. `feat: add Rust backend for GitHub vault operations`
-3. `feat: GitHub vault modal with clone/create flows`
-4. `test: add GitHubVaultModal component tests`
-5. `test: improve Rust test coverage for settings and github modules`
-6. `fix: remove unused GithubRepo import in mock-tauri.ts`
+## Key decisions
+- 500ms debounce balances responsiveness vs disk I/O
+- Flush pending saves on tab switch to prevent data loss
+- Full file reconstruction (frontmatter + title + body) ensures round-trip fidelity

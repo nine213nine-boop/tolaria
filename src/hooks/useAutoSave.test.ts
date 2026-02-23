@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useAutoSave } from './useAutoSave'
 
-const mockInvokeFn = vi.fn(() => Promise.resolve(null))
+const mockInvokeFn = vi.fn<(cmd: string, args?: Record<string, unknown>) => Promise<null>>(() => Promise.resolve(null))
 
 vi.mock('@tauri-apps/api/core', () => ({
   invoke: vi.fn(),
@@ -15,11 +15,11 @@ vi.mock('../mock-tauri', () => ({
 }))
 
 describe('useAutoSave', () => {
-  let updateContent: ReturnType<typeof vi.fn>
+  let updateContent: (path: string, content: string) => void
 
   beforeEach(() => {
     vi.useFakeTimers()
-    updateContent = vi.fn()
+    updateContent = vi.fn<(path: string, content: string) => void>()
     mockInvokeFn.mockClear()
   })
 
