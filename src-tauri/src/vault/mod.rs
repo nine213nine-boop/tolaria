@@ -938,13 +938,9 @@ References:
     #[test]
     fn test_outgoing_links_extracted_from_content_body() {
         let dir = TempDir::new().unwrap();
-        let content =
-            "---\nIs A: Note\n---\n# My Note\n\nSee [[person/alice]] and [[topic/rust]].";
+        let content = "---\nIs A: Note\n---\n# My Note\n\nSee [[person/alice]] and [[topic/rust]].";
         let entry = parse_test_entry(&dir, "note/my-note.md", content);
-        assert_eq!(
-            entry.outgoing_links,
-            vec!["person/alice", "topic/rust"]
-        );
+        assert_eq!(entry.outgoing_links, vec!["person/alice", "topic/rust"]);
     }
 
     #[test]
